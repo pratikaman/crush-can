@@ -1,14 +1,15 @@
 // Drives the real input path: mouse press → (no force in Chromium → hold fallback),
 // then synthetic Safari Force Touch events with a rising webkitForce.
 // node test-press.mjs <outdir>
-import { chromium } from '/Users/pratikaman/.claude-sidekick/skills/gstack/node_modules/playwright/index.mjs';
+// set PLAYWRIGHT to a playwright/index.mjs path, or `npm i -D playwright`; CHROME to a browser binary (optional)
+const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
 const outDir = process.argv[2] || '.';
 const kill = setTimeout(() => { console.error('watchdog: timeout'); process.exit(2); }, 90000);
 const browser = await chromium.launch({
-  executablePath: '/Users/pratikaman/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+  executablePath: process.env.CHROME || undefined,
   headless: true, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'],
 });
 const page = await browser.newPage({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 2 });

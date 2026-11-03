@@ -1,11 +1,12 @@
 // QA screenshots: node shot.mjs out.png "crush=0.4&rot=0.5" [width] [height]
-import { chromium } from '/Users/pratikaman/.claude-sidekick/skills/gstack/node_modules/playwright/index.mjs';
+// set PLAYWRIGHT to a playwright/index.mjs path, or `npm i -D playwright`; CHROME to a browser binary (optional)
+const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
 const [out = 'shot.png', query = '', w = '1440', h = '900'] = process.argv.slice(2);
 const kill = setTimeout(() => { console.error('watchdog: timeout'); process.exit(2); }, 60000);
-const browser = await chromium.launch({ executablePath: process.env.CHROME || '/Users/pratikaman/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing', headless: true, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, headless: true, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width: +w, height: +h }, deviceScaleFactor: 2 });
 const logs = [];
 page.on('console', (m) => logs.push(`[${m.type()}] ${m.text()}`));

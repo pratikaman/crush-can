@@ -10,7 +10,7 @@ const res = await build({
   minify: true,
   write: false,
   target: ['safari16', 'chrome110'],
-  legalComments: 'none',
+  legalComments: 'eof',
 });
 const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
 let html = readFileSync('index.src.html', 'utf8');

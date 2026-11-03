@@ -23,7 +23,12 @@ Squeeze a 3D soda can with your MacBook's Force Touch trackpad. The harder you p
 ```
 npm install
 node build.mjs                      # → index.html
-node shot.mjs out.png "crush=0.5&flavor=lime&rot=1"   # QA screenshot (Playwright Chromium)
+node shot.mjs out.png "crush=0.5&flavor=lime&rot=1"   # QA screenshot (needs Playwright: npm i -D playwright, or PLAYWRIGHT=/path/to/playwright/index.mjs)
 node test-press.mjs <outdir>        # drives mouse + synthetic Force Touch events
 ```
 URL params: `crush`, `flavor` (cherry|lime|orange|grape), `seed`, `rot`, `still`, `mode=live`, `p` (fixed pressure).
+
+## Credits
+- [three.js](https://threejs.org) r170 (MIT, see `THIRD_PARTY_LICENSE-three.txt`), bundled into `index.html`.
+- Fonts under the SIL Open Font License 1.1 (see `fonts/OFL-*.txt`): Instrument Serif and Instrument Sans (Instrument), Shrikhand (Jonny Pinhorn), JetBrains Mono (JetBrains).
+- "press soda co." is a made-up brand for this demo.
