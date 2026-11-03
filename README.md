@@ -32,3 +32,6 @@ URL params: `crush`, `flavor` (cherry|lime|orange|grape), `seed`, `rot`, `still`
 - [three.js](https://threejs.org) r170 (MIT, see `THIRD_PARTY_LICENSE-three.txt`), bundled into `index.html`.
 - Fonts under the SIL Open Font License 1.1 (see `fonts/OFL-*.txt`): Instrument Serif and Instrument Sans (Instrument), Shrikhand (Jonny Pinhorn), JetBrains Mono (JetBrains).
 - "press soda co." is a made-up brand for this demo.
+
+## License
+MIT, see `LICENSE`. Bundled third-party code and fonts keep their own licenses (above).
