@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Press Soda · Force Touch Crush</title>
+<style>
+@font-face { font-family: 'Instrument Serif'; src: url(fonts/InstrumentSerif.woff2) format('woff2'); font-style: normal; font-weight: 400; font-display: block; }
+@font-face { font-family: 'Instrument Serif'; src: url(fonts/InstrumentSerif-Italic.woff2) format('woff2'); font-style: italic; font-weight: 400; font-display: block; }
+@font-face { font-family: 'Instrument Sans'; src: url(fonts/InstrumentSans.woff2) format('woff2'); font-weight: 400 700; font-display: block; }
+@font-face { font-family: 'Shrikhand'; src: url(fonts/Shrikhand.woff2) format('woff2'); font-display: block; }
+@font-face { font-family: 'JetBrains Mono'; src: url(fonts/JetBrainsMono.woff2) format('woff2'); font-weight: 500; font-display: block; }
+
+@property --bgA { syntax: '<color>'; inherits: true; initial-value: #9a1229; }
+@property --bgB { syntax: '<color>'; inherits: true; initial-value: #3b0510; }
+
+:root {
+  --bgA: #9a1229; --bgB: #3b0510; --accent: #b0142f;
+  --cream: #fff1e1; --ink: #18120f; --glass: rgba(16, 4, 8, 0.26); --line: rgba(255, 241, 225, 0.16);
+  transition: --bgA .7s ease, --bgB .7s ease;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bgB); }
+body {
+  font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; color: var(--cream);
+  -webkit-font-smoothing: antialiased; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+
+.bg { position: fixed; inset: 0; background: radial-gradient(110% 85% at 50% 42%, var(--bgA) 0%, var(--bgB) 78%); }
+.grain {
+  position: fixed; inset: 0; pointer-events: none; opacity: .32; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.6 -.3'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.giant {
+  position: fixed; left: 0; right: 0; top: 52%; margin: 0; text-align: center; pointer-events: none;
+  font-family: 'Instrument Serif', serif; font-weight: 400; font-style: italic;
+  font-size: min(37vw, 66vh); line-height: .8; letter-spacing: -0.035em; color: var(--cream);
+  translate: 0 -50%; transform-origin: 50% 78%; white-space: nowrap; opacity: .96;
+}
+#stage { position: fixed; inset: 0; cursor: pointer; touch-action: none; }
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+body.pressing #stage { cursor: grabbing; }
+
+/* floating white pill nav (Potion-style) */
+.nav {
+  position: fixed; top: 18px; left: 50%; translate: -50% 0; z-index: 5;
+  display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 20px;
+  background: #fff; color: var(--ink); border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18), 0 1px 0 rgba(255,255,255,.6) inset; white-space: nowrap;
+}
+.logo { font-family: 'Shrikhand', serif; font-size: 23px; line-height: 1; letter-spacing: .01em; color: var(--accent); margin-right: 14px; transition: color .5s; }
+.logo small { font-family: 'Instrument Sans'; font-size: 10px; font-weight: 600; letter-spacing: .14em; color: #8a817c; margin-left: 6px; vertical-align: 4px; }
+.flavors { display: flex; gap: 2px; }
+.flavors button, .fresh {
+  display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px;
+  font-size: 14px; font-weight: 500; color: #4a4340; transition: background .2s, color .2s;
+}
+.flavors button:hover { background: #f3efea; color: var(--ink); }
+.flavors button.on { background: #f3efea; color: var(--ink); font-weight: 600; }
+.flavors i { width: 10px; height: 10px; border-radius: 50%; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+.fresh { background: var(--ink); color: #fff; padding: 0 16px 0 18px; margin-left: 8px; }
+.fresh:hover { background: #000; }
+kbd { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 5px; border-radius: 5px; background: rgba(255,255,255,.14); color: rgba(255,255,255,.8); }
+
+/* bottom HUD */
+.hud {
+  position: fixed; left: 50%; bottom: 26px; translate: -50% 0; z-index: 5;
+  display: flex; align-items: center; gap: 22px; padding: 14px 24px 14px 24px;
+  background: var(--glass); border: 1px solid var(--line); border-radius: 22px;
+  -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
+}
+.k { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,241,225,.62); }
+.v { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-variant-numeric: tabular-nums; }
+.meter { width: min(340px, 46vw); }
+.meter .row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 9px; }
+.meter .row .v { min-width: 4.2ch; }
+.src { margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: .04em; padding: 3px 9px; border-radius: 999px; background: rgba(255,241,225,.12); color: rgba(255,241,225,.82); }
+body[data-source="force"] .src { background: var(--cream); color: var(--ink); }
+.bar { position: relative; height: 8px; border-radius: 99px; background: rgba(255,241,225,.14); }
+.bar i { position: absolute; inset: 0; border-radius: 99px; background: linear-gradient(90deg, rgba(255,241,225,.75), var(--cream)); transform-origin: 0 50%; transform: scaleX(0); }
+.bar b { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; border-radius: 2px; background: var(--cream); opacity: 0; transition: opacity .3s; }
+.bar em { position: absolute; top: 14px; translate: -50% 0; font-style: normal; font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,241,225,.5); }
+.bar em::before { content: ''; position: absolute; left: 50%; top: -10px; width: 1px; height: 8px; background: rgba(255,241,225,.45); }
+.divider { width: 1px; align-self: stretch; background: var(--line); }
+.crush { display: flex; flex-direction: column; gap: 6px; min-width: 76px; }
+.crush .v { font-size: 26px; line-height: 1; }
+
+.hint {
+  position: fixed; left: 50%; bottom: 118px; translate: -50% 0; z-index: 5; margin: 0; max-width: 92vw; text-align: center;
+  font-family: 'Instrument Serif', serif; font-style: italic; font-size: 21px; color: rgba(255,241,225,.86);
+  transition: opacity .5s; pointer-events: none;
+}
+.hint b { font-style: normal; font-family: 'Instrument Sans'; font-weight: 600; font-size: 15px; }
+
+.corner { position: fixed; bottom: 32px; z-index: 5; }
+.corner.left { left: 28px; }
+.corner.right { right: 28px; }
+.seg { display: flex; padding: 4px; gap: 2px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.seg button { height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 500; color: rgba(255,241,225,.7); }
+.seg button.on { background: var(--cream); color: var(--ink); font-weight: 600; }
+.pill-btn { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-size: 13px; font-weight: 500; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.pill-btn svg { width: 16px; height: 16px; }
+.pill-btn.off { color: rgba(255,241,225,.55); }
+.pill-btn.off .wave { display: none; }
+
+.boot { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; background: var(--bgB); transition: opacity .6s .1s; font-family: 'Instrument Serif'; font-style: italic; font-size: 28px; }
+body.ready .boot { opacity: 0; pointer-events: none; }
+
+@media (max-width: 860px) {
+  .flavors button span { display: none; }
+  .flavors button { padding: 0 11px; }
+  .logo small { display: none; }
+  .corner { bottom: 132px; }
+  .hint { bottom: 170px; }
+}
+</style>
+</head>
+<body data-source="none">
+<div class="bg"></div>
+<h1 class="giant" aria-hidden="true">crush</h1>
+<div id="stage"><canvas id="gl"></canvas></div>
+<div class="grain"></div>
+
+<header class="nav" data-ui>
+  <div class="logo">press<small>SODA CO.</small></div>
+  <nav class="flavors">
+    <button data-flavor="cherry"><i style="background:#b0142f"></i><span>Cherry Cola</span></button>
+    <button data-flavor="lime"><i style="background:#3a9a34"></i><span>Lime Fizz</span></button>
+    <button data-flavor="orange"><i style="background:#e2551b"></i><span>Blood Orange</span></button>
+    <button data-flavor="grape"><i style="background:#6c3ea6"></i><span>Grape</span></button>
+  </nav>
+  <button class="fresh" id="fresh">Fresh can <kbd>R</kbd></button>
+</header>
+
+<p class="hint" id="hint">Click and hold anywhere, then press harder</p>
+
+<footer class="hud" data-ui>
+  <div class="meter">
+    <div class="row"><span class="k">Force</span><span class="v" id="forceVal">0%</span><span class="src" id="src">Waiting for a press</span></div>
+    <div class="bar"><i id="bar"></i><b id="peak"></b><em id="tick">force click</em></div>
+  </div>
+  <div class="divider"></div>
+  <div class="crush"><span class="k">Crushed</span><span class="v" id="crushVal">0%</span></div>
+</footer>
+
+<div class="corner left" data-ui>
+  <div class="seg"><button data-mode="permanent">Stays crushed</button><button data-mode="live">Springs back</button></div>
+</div>
+<div class="corner right" data-ui>
+  <button class="pill-btn" id="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span>Sound on</span></button>
+</div>
+
+<div class="boot">opening a fresh can…</div>
+<script>/*APP*/</script>
+</body>
+</html>
