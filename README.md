@@ -15,7 +15,7 @@ Squeeze a 3D soda can with your MacBook's Force Touch trackpad. The harder you p
 
 ## How the can is made
 - `src/profile.js`: lathe profile of a real 12 oz can (dome, standing bead, necked shoulder, double seam, countersunk lid).
-- `src/can.js`: the crush. The wall folds row by row in a Yoshimura diamond pattern (flat triangular facets between alternating N-gon rings), with a random fold order, lobed outward lips, crumple noise and tilt per can. Normals come from finite differences, and the lid rides on a rigid transform.
+- `src/can.js`: the crush. A few uneven fold rows collapse on an irregular schedule. Each row folds into heavily jittered diamond facets laid out along wavy, tilted fold lines, deeper on one side, with a big outward flap on one side. Ridged-noise wrinkles concentrate along the creases, facets bow in and out, and random dents appear as it crushes. The rim goes slightly oval and the lid leans on a rigid transform. Everything independent of crush amount is baked per vertex when a can is made (about 4 ms per update).
 - `src/textures.js`: label, roughness/metalness and lid normal maps, all drawn on canvas (original "press soda co." brand).
 - `src/env.js`: studio softbox environment (PMREM). `src/shadow.js`: contact shadow. `src/audio.js`: synthesised crunch.
 
